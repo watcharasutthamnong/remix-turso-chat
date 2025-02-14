@@ -1,7 +1,8 @@
 import { type LoaderFunctionArgs } from "@remix-run/node";
 import { BroadcastChannel } from 'broadcast-channel';
 import { io } from 'socket.io-client';
-export const socket = io("http://localhost:3000");
+// export const socket = io("http://localhost:3000");
+export const socket = io("https://socket-server-l8gn.onrender.com");
 
 export const pingToSocket = (topic: string) => {
   socket.emit(topic);
