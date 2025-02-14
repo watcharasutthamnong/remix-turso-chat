@@ -3,6 +3,10 @@ import { BroadcastChannel } from 'broadcast-channel';
 import { io } from 'socket.io-client';
 export const socket = io("http://localhost:3000");
 
+export const pingToSocket = (topic: string) => {
+  socket.emit(topic);
+}
+
 // Handles Server-Sent Events (SSE) for real-time chat updates
 export async function loader({ request }: LoaderFunctionArgs) {
   const headers = new Headers({
@@ -23,14 +27,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
         );
       };
 
-      // Keeps the connection alive with periodic pings
-      const interval = setInterval(() => {
+      // Listen for messages from the Socket.IO server
+      socket.on("new_message", () => {
         messageChannel.postMessage({ type: 'ping' });
-      }, 15000);
+      });
 
       // Cleans up resources when connection is closed
       request.signal.addEventListener('abort', () => {
-        clearInterval(interval);
+        socket.off("new_message");
         messageChannel.close();
       });
     },

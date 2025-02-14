@@ -3,7 +3,7 @@ import { type LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData, useFetcher } from '@remix-run/react';
 import { db } from '~/db.server';
 import { BroadcastChannel } from 'broadcast-channel';
-import { socket } from '~/socket';
+import { pingToSocket } from './chat.events';
 
 // Fetches the most recent 50 messages from the database when the page loads
 export async function loader() {
@@ -154,20 +154,6 @@ export default function ChatRoom() {
   };
 
   useEffect(() => {
-    socket.on('show', (data: {
-      username: string;
-      // meessage: db data
-    }) => {
-      // get the message from the db and show to the ui
-    });
-
-    return () => {
-      socket.off('show');
-    };
-  }, []);
-
-
-  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -178,10 +164,7 @@ export default function ChatRoom() {
     const form = event.currentTarget;
     fetcher.submit(form);
     setMessageInput('');
-    socket.emit("created", {
-      username,
-      // message: db index
-    });
+    pingToSocket("created");
   };
 
   const insertEmoji = (emoji: string) => {
